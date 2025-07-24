@@ -124,3 +124,4 @@ plotly
 groq
 langchain_community
 llama_index
+streamlit_lottie
