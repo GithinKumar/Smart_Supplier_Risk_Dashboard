@@ -189,8 +189,6 @@ df["Quarter"] = pd.to_datetime(df["Quarter"])
 
 overview_df = pd.read_csv("Data/7.supplier_delivery_table.csv")
 
-github_url = "https://github.com/GithinKumar/Supplier_Risk_Dashboard"  
-github_lottie = load_lottiefile("src/lottie_avatars/GitHub Logo Animation.json")
 
 flagged_score_threshold = 70
 # Filter rows where score is low
@@ -219,48 +217,6 @@ default_supplier_idx = supplier_options.index(default_supplier_display) if defau
 
 # Initialize chat history
 initialize_chat_history(st.session_state)
-
-if not st.session_state["show_onboarding"]:
-    # --- GitHub Lottie Animated Logo at True Top Right, above heading ---
-    st.markdown(
-         """
-        <style>
-        .github-float-btn {
-            position: fixed;
-            top: 16px;
-            right: 36px;
-            width: 48px;
-            height: 48px;
-            z-index: 2002;
-        }
-        .github-float-btn-link {
-            position: absolute;
-            top: 0; left: 0;
-            width: 48px; height: 48px;
-            z-index: 2003;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-        }
-        </style>
-        <div class="github-float-btn">
-            <a href="{github_url}" target="_blank" 
-                 class="github-float-btn-link"
-                title="View on GitHub"></a>
-                </div>
-            </a>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-    with st.container():
-        st.markdown(
-            "<div style='position:fixed; top:16px; right:36px; width:48px; height:48px; z-index:2001;'>",
-            unsafe_allow_html=True
-        )
-        st_lottie(github_lottie, height=48, width=48, key="github_lottie_btn")
-        st.markdown("</div>", unsafe_allow_html=True)
-
 
 #  filters block to and Clippy AI
 st.markdown("<h1 style='text-align: center;'>SMART SUPPLIER OVERVIEW</h1>", unsafe_allow_html=True)
