@@ -182,7 +182,7 @@ delivery_df["Value Category"] = delivery_df["Value Category"].fillna("Unknown")
 master_df = pd.read_csv("Data/1.supplier_master_dataset.csv")
 supplier_name_map = dict(zip(master_df["Supplier ID"], master_df["Supplier Name"]))
 
-summary = pd.read_csv("data/7.supplier_delivery_table.csv")
+summary = pd.read_csv("Data/7.supplier_delivery_table.csv")
 
 df = pd.read_csv("Data/6.supplier_score_final.csv")
 df["Quarter"] = pd.to_datetime(df["Quarter"])
