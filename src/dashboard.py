@@ -219,7 +219,7 @@ default_supplier_idx = supplier_options.index(default_supplier_display) if defau
 initialize_chat_history(st.session_state)
 
 #  filters block to and Clippy AI
-st.markdown("<h1 style='text-align: center;'>SMART SUPPLIER OVERVIEW</h1>", unsafe_allow_html=True)
+st.markdown("<h1 style='text-align: center;'>SMART SUPPLIER RISK OVERVIEW DASHBOARD</h1>", unsafe_allow_html=True)
 
 if not st.session_state["show_onboarding"]:
     with st.sidebar:
