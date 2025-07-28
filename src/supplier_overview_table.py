@@ -1,9 +1,9 @@
 import pandas as pd
 
 def summarize_supplier_delivery(
-    delivery_csv_path,           # e.g. '4.supplier_overview.csv'
-    supplier_master_csv_path,    # e.g. '1.supplier_master_dataset.csv'
-    output_csv_path              # where to write the summarized file
+    delivery_csv_path,           
+    supplier_master_csv_path,    
+    output_csv_path              
 ):
     # Load data
     delivery = pd.read_csv(delivery_csv_path)
