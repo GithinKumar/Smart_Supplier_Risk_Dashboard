@@ -190,7 +190,7 @@ df["Quarter"] = pd.to_datetime(df["Quarter"])
 overview_df = pd.read_csv("Data/7.supplier_delivery_table.csv")
 
 
-flagged_score_threshold = 70
+flagged_score_threshold = 60
 # Filter rows where score is low
 flagged_scores_df = df[df['Supplier Score'] < flagged_score_threshold]
 # Group flagged quarters by supplier
@@ -210,7 +210,12 @@ shipment_categories = ["All", "Critical", "High", "Low", "Medium"]
 supplier_ids = sorted(df["Supplier ID"].unique())
 supplier_options = ["ALL"] + [f"{sid} - {supplier_name_map.get(sid, '')}" for sid in supplier_ids]
 
-flagged_supplier_id = "SUP005"
+
+# Select the first flagged supplier if any, else default to the first supplier ID
+if not flagged_suppliers.empty:
+    flagged_supplier_id = flagged_suppliers["Supplier ID"].iloc[0]
+else:
+    flagged_supplier_id = supplier_ids[0]
 flagged_supplier_name = supplier_name_map.get(flagged_supplier_id, "")
 default_supplier_display = f"{flagged_supplier_id} - {flagged_supplier_name}"
 default_supplier_idx = supplier_options.index(default_supplier_display) if default_supplier_display in supplier_options else 0

@@ -1,9 +1,13 @@
 import pandas as pd
+import numpy as np
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 
 def calculate_financial_risk_scores(financial_data_path: str) -> pd.DataFrame:
     df = pd.read_csv(financial_data_path)
+
+    # Apply log1p transformation directly to 'Revenue (USD)'
+    df['Revenue (USD)'] = np.log1p(df['Revenue (USD)'])
 
     # Select only numeric features (adjust as needed)
     numeric_cols = df.select_dtypes(include='number').columns.tolist()
