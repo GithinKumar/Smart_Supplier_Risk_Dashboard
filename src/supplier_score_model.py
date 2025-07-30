@@ -66,14 +66,14 @@ def generate_supplier_score(
     ]
     X = merged_df[feature_cols]
     y = (
-        0.3 * (100 - merged_df["%_shipment_lost"]) +
-        0.25 * (100 - merged_df["%_defect_rate"]) +
-        0.2 * (100 - merged_df["%_delayed"]) +
-        0.18 * (100 - merged_df["avg_delay"]) +
-        0.05 * (100 - merged_df["Financial Risk Score"]) +
-        0.15 * (merged_df["Credit Score"]) +
-        0.1 * (100 - merged_df["D&B Rating"]) +
-        0.1 * (100 - merged_df["Log Revenue"])
+        0.2256 * (100 - merged_df["%_shipment_lost"]) +
+        0.188 * (100 - merged_df["%_defect_rate"]) +
+        0.1504 * (100 - merged_df["%_delayed"]) +
+        0.1353 * (100 - merged_df["avg_delay"]) +
+        0.0375 * (100 - merged_df["Financial Risk Score"]) +
+        0.1128 * (merged_df["Credit Score"]) +
+        0.0752 * (100 - merged_df["D&B Rating"]) +
+        0.0752 * (100 - merged_df["Log Revenue"])
     )
     
     # Normalize features

@@ -44,14 +44,14 @@ Two machine learning models are used one to flag financial anomaly and another t
   - **Scoring Formula:**  
 calculates supplier score by weightage formula:
 The supplier score is calculated using a weighted formula that includes delivery performance and financial indicators:
-	-	30% → Shipment Lost (%)
-	-	25% → Defect Rate (%)
-	-	20% → Delayed Shipments (%)
-	-	18% → Average Delay (days)
-	-	5%  → Financial Risk Score (from ML Isolation Forest anomaly detection model)
-	-	15% → Credit Score
-	-	10% → D&B Rating
-	-	10% → Log Revenue
+	-	22.56% → Shipment Lost (%)
+	-	18.8% → Defect Rate (%)
+	-	15.04% → Delayed Shipments (%)
+	-	13.53% → Average Delay (days)
+	-	3.75%  → Financial Risk Score (from ML Isolation Forest anomaly detection model)
+	-	11.28% → Credit Score
+	-	7.52% → D&B Rating
+	-	7.52% → Log Revenue
 Note: Higher weights are given to shipment loss and defects, while financial risk score acts as a soft signal.
 
 - **supplier score weightage formula Logic:**
