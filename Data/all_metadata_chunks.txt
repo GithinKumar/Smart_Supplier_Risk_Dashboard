@@ -49,14 +49,14 @@ calculates supplier score by weightage formula.
 
 ### Supplier Score Weight Distribution
 The supplier score is calculated based on the following normalized weights:
-- Shipment Lost: 22.56%
-- Defect Rate: 18.8%
-- Delayed Shipments: 15.04%
-- Average Delay: 13.53%
-- Financial Risk Score: 3.75%
-- Credit Score: 11.28%
-- D&B Rating: 7.52%
-- Log Revenue: 7.52%
+- Shipment Lost = 22.56%
+-Defect Rate = 18.80%
+-Delayed Shipments = 15.04%
+-Average Delay = 13.53%
+-Financial Risk Score = 3.75%
+-Credit Score = 11.28%
+-D&B Rating = 7.52%
+-Log Revenue = 7.52%
 Note: Higher weights are given to shipment loss and defects, while financial risk score acts as a soft signal.
   
   
