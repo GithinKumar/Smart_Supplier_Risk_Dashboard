@@ -1,141 +1,175 @@
-Quarterly financial metrics for each supplier, including credit score, revenue, and D&B rating. ML Model 'Isolation Forest' (Unsupervised anomaly detection, library: scikit-learn) is used for: Calculate financial risk scores for suppliers based on anomaly detection in their financial data. Features used: Credit Score, Revenue (USD), D&B Rating. Output: Financial Risk Score (0-100), higher means higher anomaly risk. Columns: Supplier ID, Quarter, Credit Score, Revenue (USD), D&B Rating. Parameters: contamination=0.1; random_state=42. Reason: Isolation Forest is well-suited for identifying anomalies in high-dimensional, unlabeled data such as supplier financial metrics. It efficiently detects outliers without requiring labeled examples of risky suppliers, making it ideal for unsupervised financial risk detection in this context..
-Calculates a comprehensive supplier performance score each quarter by combining operational performance data, financial risk, and supplier tier using a supervised machine learning approach. ML Model 'XGBRegressor' (Supervised regression, library: xgboost) is used for: To predict an overall supplier score based on a mix of operational, financial, and categorical supplier features. Features used: %_on_time, %_delayed, avg_delay, avg_shipment_volume, %_shipment_lost, %_defect_rate, Financial Risk Score, Tier, delay_defect_interaction, volume_delay_interaction, volume_lost_interaction, defect_lost_interaction, log_avg_delay, log_shipment_volume. Output: . Columns: Supplier ID, Quarter, %_on_time, %_delayed, avg_delay, avg_shipment_volume, %_shipment_lost, %_defect_rate, Financial Risk Score, Tier, delay_defect_interaction, volume_delay_interaction, volume_lost_interaction, defect_lost_interaction, log_avg_delay, log_shipment_volume, Supplier Score. Parameters: random_state=42. Reason: XGBoost (XGBRegressor) was chosen for its high performance, ability to handle both linear and non-linear relationships, support for feature interactions, and robustness with tabular data. It also provides built-in handling of missing values and is widely used for structured regression tasks..
-Training details for model 'XGBRegressor': train/test split: 80% train, 20% test, scaling: StandardScaler used for feature normalization.
+### Dashboard Overview
+This is an intelligent, AI-powered dashboard designed to assess and visualize supplier risk.
+It uses machine learning models on financial and delivery datasets to generate a supplier risk score.
+The platform offers both high-level summaries and detailed analytical insights through interactive visualizations.
+A built-in AI assistant allows users to ask questions, explore data, and receive contextual guidance throughout their analysis.
+
+### Key Features of Dashboard
+- **Quarterly Supplier Scoring**  
+  Machine learning-generated single-value metric to compare suppliers against each other on a quarterly basis.
+- **Interactive Dashboard**  
+  Users can explore supplier performance through:
+  - Value Category filtering (Critical, High, Medium, Low, All)
+  - Supplier selection
+  - Timeline filtering
+  - Volume-based bar charts
+  - Expected vs Actual Delivery line chart with event markers
+- **Supplier Overview Table**  
+  A quick summary of delivery performance metrics by supplier, including delay rates, shipment volume, and defect/loss percentages.
+  
+  ### Dataset Ingestion and Structure or Dataset used
+Curated datasets are used to power both machine learning models and Retrieval-Augmented Generation (RAG) pipelines. These datasets are structured and aligned by `Supplier ID` across sources:
+- **Supplier Master Dataset**  
+  Contains supplier-level reference data: `Supplier ID`, `Name`, `Tier`, `Region`
+- **Supplier Financials Dataset**  
+  Tracks financial indicators by quarter: `Supplier ID`, `Quarter`, `Credit Score`, `Revenue`, `D&B Rating`
+- **Supplier Delivery Dataset**  
+  Records logistics performance metrics: `Supplier ID`, `Order Date`, `Expected vs Actual Delivery`, `Shipment Lost`, `Defect Rate`, `Volume`, `Value Category`
+  
+  ### ML Models Used-How score is Supplier Score is derived
+Two machine learning models are used one to flag financial anomaly and another to calculate supplier risk:
+- **Unsupervised Anomaly Detection (Isolation Forest)**  
+  - **Input:** `supplier_financials_dataset`  
+  - **Model:** Isolation Forest  
+  - **Output:** `supplier_financial_risk_score`  
+    - Flags anomalies in credit score, revenue, or D&B rating(financial anomaly flagging) 
+    - Acts as a soft signal for financial instability
+
+- **Supervised Risk Scoring (XGBoost Regressor)**  
+  - **Inputs:**  
+    - `supplier_overview`  
+    - `supplier_master_dataset`  
+    - `supplier_financial_risk_score`  
+  - **Model:** XGBoost Regressor  
+  - **Scoring Formula:**  
+calculates supplier score by weightage formula:
+```python
+y = (
+  0.3 * (100 - %_shipment_lost) +
+  0.25 * (100 - %_defect_rate) +
+  0.2 * (100 - %_delayed) +
+  0.18 * (100 - avg_delay) +
+  0.05 * (100 - Financial Risk Score) +
+  0.15 * Credit Score +
+  0.1 * (100 - D&B Rating) +
+  0.1 * (100 - Log Revenue)
+)
+- **supplier score weightage formula Logic:**
+  - Emphasis on shipment lost and defect rate
+  - Financial risk score used as a minor signal
+  
+  
+### About Clippy: AI Assistant, LLaMA 3.3 Model, and RAG Pipeline
+Hey there — I'm Clippy, your AI assistant, powered by LLaMA 3.3 (70B parameters). I don’t just generate answers — I understand your context.
+I use something called a **RAG pipeline** — short for *Retrieval-Augmented Generation*. Think of it like this: I was trained on general knowledge, but I also have access to a live project-specific handbook. So when you ask me something, I can fetch relevant content from that handbook to make sure my response is grounded in your actual data.
+Here’s how it works under the hood:
+- **Context Embedding**  
+  I use the `all-MiniLM-L6-v2` embedding model to transform your dashboard’s metadata and documentation into vector format. That helps me understand meaning, not just match words.
+- **Retrieval Pipeline**  
+  When you ask a question, I search through those embedded chunks to find the most relevant context — kind of like flipping to the right page in a smart playbook.
+- **LLM Response Generation**  
+  Then, my LLaMA 3.3 brain takes over. I combine your question with the retrieved context to give a response that's accurate, helpful, and tailored to your project.
+What can I do?  
+- Explain how supplier risk scoring works  
+- Answer questions about dashboard functionality  
+- Explore data with you in natural language  
+- Stay aware of the context you’re working in
+So yes — I’m not just a chatbot. I’m an AI assistant with memory, awareness, and your data at my fingertips.
+
+### Project Development and Deployment Overview
+This project was built using Python in Visual Studio Code, combining hands-on engineering with the power of AI-assisted development.  
+The AI assistant (Clippy) is powered by a Groq-hosted LLaMA 3.3 model accessed through the Groq Cloud API. The application is deployed using Streamlit, providing an interactive and accessible front end for users to explore supplier risk insights.
+Want to dive deeper into the architecture?
+The full project repository includes:
+- 📁 A modular Python codebase
+- 📄 A detailed README explaining the full dashboard pipeline
+- 🧩 Guidance on environment setup and integration in organizational workflows
+- 🧠 Insight into the ML models, scoring formulas, and data pipeline
+You can visit the GitHub repository by clicking the logo on the right-hand side of the dashboard or using the link provided in the résumé.
+
+### Supplier details
 Supplier SUP001: Nortech Electronics, Region: North America, Tier: Tier 1.
 Supplier SUP002: EuroAuto Parts, Region: Europe, Tier: Tier 2.
 Supplier SUP003: AsiaText Co, Region: Asia, Tier: Tier 1.
 Supplier SUP004: ChemSouth Ltd, Region: South America, Tier: Tier 3.
 Supplier SUP005: AfriMine Corp, Region: Africa, Tier: Tier 2.
 Supplier SUP006: GlobalMed Supply, Region: Global, Tier: Tier 1.
-Supplier SUP001 had an average performance score of 84.33 from 2020 to 2023.
-Supplier SUP002 had an average performance score of 77.456 from 2020 to 2023.
-Supplier SUP003 had an average performance score of 83.75 from 2020 to 2023.
-Supplier SUP004 had an average performance score of 81.93 from 2020 to 2023.
-Supplier SUP005 had an average performance score of 75.0 from 2020 to 2023.
-Supplier SUP006 had an average performance score of 83.19 from 2020 to 2023.
-Flagged suppliers: SUP003, SUP005
-Supplier SUP003: AsiaText Co (Flagged in 2021-Q3)
-Supplier SUP005: AfriMine Corp (Flagged in 2021-Q4, 2023-Q2)
-Chart 'Average Supplier Score' (Bar Chart): Displays the average risk score for each supplier, highlighting those with risk scores above the threshold. X-axis: Supplier ID, Y-axis: Supplier Score. Filters: Value Category, Date Range. Source data: Supplier_score_final. Highlighted: Flagged suppliers.
-Chart 'Total Shipment Volume per supplier' (Bar Chart): Displays the total shipment volume for each supplier as per the date range and value category selected. X-axis: Supplier ID, Y-axis: Total Shipment Volume. Filters: Value Category, Date Range. Source data: supplier_delivery_dataset.
-Chart 'Expected vs Actual Deliveries' (Multi-Series Line Chart with Event Markers): Shows expected shipment deliveries versus actual deliveries over time for the selected supplier. Blue dashed line and dots represent the expected shipment dates and volumes, while the green solid line and squares show the actual shipment deliveries. The chart also highlights defected shipments (brown triangles) and lost shipments (purple X markers). Used to analyze delivery performance, spot delays, and investigate loss or defect trends over time. X-axis: Date, Y-axis: Shipment Volume. Filters: Value Category, Supplier, Date Range, Aggregation (Per Shipment, Per Week, Per Month). Source data: supplier_delivery_dataset.csv. Highlighted events: Defected Shipments, Lost Shipments. Purpose: To visualize the delivery performance for a supplier by comparing planned (expected) and actual shipment volumes over time, while highlighting defected and lost shipments for root cause analysis and risk assessment..
-Chart 'Supplier Overview' (Table): Displays summary delivery performance metrics for the selected supplier, broken down by Value Category (Critical, High, Medium, Low). Metrics include on-time and delayed shipment percentages, average delivery delay, average shipment volume, percent of shipments lost, and percent of shipments with defects. Useful for quickly comparing supplier reliability and quality across shipment types. X-axis: , Y-axis: . Filters: Value Category, Supplier. Source data: supplier_delivery_table.csv (derived from supplier_delivery_dataset.csv). Purpose: To provide a detailed breakdown of each supplier’s delivery performance across different value categories, helping users assess reliability, delays, shipment volume, loss, and defects at a glance..
-LLM Model: Devstral-Small-2507 by Mistral AI via Hugging Face Hub. Purpose: Natural language question answering, explanation, and user assistance for the Supplier Performance dashboard.. Limitations: context understanding is limited due to token limitation offered on free tier Hugging face, Does not have access to external data or internet.
-Supplier SUP001 shipment ordered on 2020-07-30: Expected delivery 2020-08-07, Actual delivery 2020-08-08. Shipment volume: 84, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP001 shipment ordered on 2020-02-05: Expected delivery 2020-02-19, Actual delivery 2020-02-21. Shipment volume: 26, Value category: Low. This shipment was DEFECTED.
-Supplier SUP001 shipment ordered on 2021-09-23: Expected delivery 2021-10-01, Actual delivery 2021-09-25. Shipment volume: 100, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP001 shipment ordered on 2021-05-22: Expected delivery 2021-06-05, Actual delivery 2021-06-07. Shipment volume: 74, Value category: High. This shipment was DEFECTED.
-Supplier SUP001 shipment ordered on 2021-04-14: Expected delivery 2021-04-19, Actual delivery 2021-04-17. Shipment volume: 112, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP001 shipment ordered on 2021-06-25: Expected delivery 2021-07-06, Actual delivery 2021-07-06. Shipment volume: 104, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP001 shipment ordered on 2022-06-05: Expected delivery 2022-06-20, Actual delivery 2022-06-27. Shipment volume: 131, Value category: Low. This shipment was DEFECTED.
-Supplier SUP001 shipment ordered on 2023-04-16: Expected delivery 2023-04-25, Actual delivery 2023-04-23. Shipment volume: 140, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP001 shipment ordered on 2021-06-24: Expected delivery 2021-07-08, Actual delivery 2021-07-06. Shipment volume: 48, Value category: High. This shipment was DEFECTED.
-Supplier SUP001 shipment ordered on 2020-07-26: Expected delivery 2020-08-07, Actual delivery 2020-08-09. Shipment volume: 100, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP001 shipment ordered on 2020-10-26: Expected delivery 2020-10-31, Actual delivery 2020-11-03. Shipment volume: 115, Value category: Critical. This shipment was DEFECTED.
-Supplier SUP001 shipment ordered on 2022-03-16: Expected delivery 2022-03-28, Actual delivery 2022-04-08. Shipment volume: 115, Value category: Low. This shipment was DEFECTED.
-Supplier SUP001 shipment ordered on 2021-06-10: Expected delivery 2021-06-19, Actual delivery 2021-06-24. Shipment volume: 47, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP001 shipment ordered on 2020-08-27: Expected delivery 2020-09-07, Actual delivery 2020-09-03. Shipment volume: 113, Value category: Low. This shipment was DEFECTED.
-Supplier SUP002 shipment ordered on 2022-02-21: Expected delivery 2022-02-26, Actual delivery 2022-02-26. Shipment volume: 60, Value category: High. This shipment was DEFECTED.
-Supplier SUP002 shipment ordered on 2022-12-13: Expected delivery 2022-12-24, Actual delivery 2022-12-21. Shipment volume: 74, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP002 shipment ordered on 2023-12-06: Expected delivery 2023-12-19, Actual delivery 2023-12-17. Shipment volume: 88, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP002 shipment ordered on 2020-04-06: Expected delivery 2020-04-19, Actual delivery 2020-04-24. Shipment volume: 153, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP002 shipment ordered on 2021-06-03: Expected delivery 2021-06-12, Actual delivery 2021-06-05. Shipment volume: 90, Value category: High. This shipment was DEFECTED.
-Supplier SUP002 shipment ordered on 2022-07-29: Expected delivery 2022-08-07, Actual delivery 2022-08-09. Shipment volume: 89, Value category: Low. This shipment was DEFECTED.
-Supplier SUP002 shipment ordered on 2021-05-30: Expected delivery 2021-06-10, Actual delivery 2021-06-13. Shipment volume: 53, Value category: Low. This shipment was DEFECTED.
-Supplier SUP002 shipment ordered on 2023-04-17: Expected delivery 2023-04-29, Actual delivery 2023-05-02. Shipment volume: 96, Value category: High. This shipment was DEFECTED.
-Supplier SUP002 shipment ordered on 2023-02-08: Expected delivery 2023-02-18, Actual delivery 2023-02-19. Shipment volume: 70, Value category: Medium. This shipment was LOST and DEFECTED.
-Supplier SUP002 shipment ordered on 2021-07-10: Expected delivery 2021-07-15, Actual delivery 2021-07-13. Shipment volume: 68, Value category: Low. This shipment was LOST.
-Supplier SUP002 shipment ordered on 2023-01-15: Expected delivery 2023-01-22, Actual delivery 2023-01-22. Shipment volume: 122, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP002 shipment ordered on 2022-05-28: Expected delivery 2022-06-11, Actual delivery 2022-06-13. Shipment volume: 85, Value category: Low. This shipment was DEFECTED.
-Supplier SUP002 shipment ordered on 2023-07-19: Expected delivery 2023-07-29, Actual delivery 2023-07-29. Shipment volume: 84, Value category: Low. This shipment was DEFECTED.
-Supplier SUP002 shipment ordered on 2020-07-22: Expected delivery 2020-08-03, Actual delivery 2020-08-02. Shipment volume: 115, Value category: Low. This shipment was DEFECTED.
-Supplier SUP003 shipment ordered on 2021-08-23: Expected delivery 2021-08-28, Actual delivery 2021-08-28. Shipment volume: 125, Value category: Low. This shipment was DEFECTED.
-Supplier SUP003 shipment ordered on 2020-05-17: Expected delivery 2020-05-28, Actual delivery 2020-05-28. Shipment volume: 114, Value category: Critical. This shipment was DEFECTED.
-Supplier SUP003 shipment ordered on 2020-04-09: Expected delivery 2020-04-22, Actual delivery 2020-04-23. Shipment volume: 65, Value category: High. This shipment was DEFECTED.
-Supplier SUP003 shipment ordered on 2021-08-27: Expected delivery 2021-09-01, Actual delivery 2021-09-05. Shipment volume: 92, Value category: High. This shipment was DEFECTED.
-Supplier SUP003 shipment ordered on 2020-08-07: Expected delivery 2020-08-20, Actual delivery 2020-08-20. Shipment volume: 133, Value category: Low. This shipment was DEFECTED.
-Supplier SUP003 shipment ordered on 2022-09-08: Expected delivery 2022-09-20, Actual delivery 2022-09-17. Shipment volume: 66, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP003 shipment ordered on 2023-08-01: Expected delivery 2023-08-13, Actual delivery 2023-08-10. Shipment volume: 89, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP003 shipment ordered on 2023-12-14: Expected delivery 2023-12-19, Actual delivery 2023-12-19. Shipment volume: 119, Value category: Low. This shipment was DEFECTED.
-Supplier SUP003 shipment ordered on 2021-10-07: Expected delivery 2021-10-16, Actual delivery 2021-10-05. Shipment volume: 62, Value category: Low. This shipment was DEFECTED.
-Supplier SUP003 shipment ordered on 2023-05-11: Expected delivery 2023-05-17, Actual delivery 2023-05-18. Shipment volume: 91, Value category: Low. This shipment was LOST.
-Supplier SUP003 shipment ordered on 2023-06-24: Expected delivery 2023-07-07, Actual delivery 2023-07-15. Shipment volume: 140, Value category: High. This shipment was DEFECTED.
-Supplier SUP003 shipment ordered on 2022-10-25: Expected delivery 2022-11-04, Actual delivery 2022-11-05. Shipment volume: 91, Value category: Low. This shipment was DEFECTED.
-Supplier SUP003 shipment ordered on 2022-08-25: Expected delivery 2022-09-03, Actual delivery 2022-09-03. Shipment volume: 103, Value category: Low. This shipment was DEFECTED.
-Supplier SUP003 shipment ordered on 2021-12-10: Expected delivery 2021-12-17, Actual delivery 2021-12-21. Shipment volume: 115, Value category: Low. This shipment was DEFECTED.
-Supplier SUP003 shipment ordered on 2020-10-01: Expected delivery 2020-10-15, Actual delivery 2020-10-17. Shipment volume: 52, Value category: Critical. This shipment was DEFECTED.
-Supplier SUP003 shipment ordered on 2020-11-28: Expected delivery 2020-12-03, Actual delivery 2020-12-03. Shipment volume: 51, Value category: High. This shipment was DEFECTED.
-Supplier SUP004 shipment ordered on 2020-08-28: Expected delivery 2020-09-02, Actual delivery 2020-09-07. Shipment volume: 80, Value category: Low. This shipment was DEFECTED.
-Supplier SUP004 shipment ordered on 2022-02-05: Expected delivery 2022-02-18, Actual delivery 2022-02-13. Shipment volume: 137, Value category: High. This shipment was DEFECTED.
-Supplier SUP004 shipment ordered on 2020-12-10: Expected delivery 2020-12-17, Actual delivery 2020-12-08. Shipment volume: 107, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP004 shipment ordered on 2020-09-14: Expected delivery 2020-09-26, Actual delivery 2020-09-24. Shipment volume: 93, Value category: Low. This shipment was DEFECTED.
-Supplier SUP004 shipment ordered on 2022-07-21: Expected delivery 2022-07-29, Actual delivery 2022-07-31. Shipment volume: 78, Value category: Low. This shipment was DEFECTED.
-Supplier SUP004 shipment ordered on 2023-02-19: Expected delivery 2023-02-25, Actual delivery 2023-02-26. Shipment volume: 122, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP004 shipment ordered on 2023-02-09: Expected delivery 2023-02-14, Actual delivery 2023-02-06. Shipment volume: 131, Value category: Low. This shipment was DEFECTED.
-Supplier SUP004 shipment ordered on 2020-05-27: Expected delivery 2020-06-02, Actual delivery 2020-06-10. Shipment volume: 102, Value category: Low. This shipment was DEFECTED.
-Supplier SUP004 shipment ordered on 2023-06-30: Expected delivery 2023-07-09, Actual delivery 2023-07-10. Shipment volume: 111, Value category: High. This shipment was DEFECTED.
-Supplier SUP004 shipment ordered on 2022-08-22: Expected delivery 2022-09-03, Actual delivery 2022-09-02. Shipment volume: 91, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP004 shipment ordered on 2023-02-22: Expected delivery 2023-02-28, Actual delivery 2023-02-26. Shipment volume: 92, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP004 shipment ordered on 2020-02-05: Expected delivery 2020-02-12, Actual delivery 2020-02-05. Shipment volume: 134, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP004 shipment ordered on 2022-02-21: Expected delivery 2022-03-02, Actual delivery 2022-02-25. Shipment volume: 120, Value category: High. This shipment was DEFECTED.
-Supplier SUP004 shipment ordered on 2023-12-15: Expected delivery 2023-12-23, Actual delivery 2023-12-27. Shipment volume: 100, Value category: High. This shipment was DEFECTED.
-Supplier SUP004 shipment ordered on 2022-06-30: Expected delivery 2022-07-05, Actual delivery 2022-06-30. Shipment volume: 121, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP004 shipment ordered on 2021-01-20: Expected delivery 2021-01-27, Actual delivery 2021-01-24. Shipment volume: 111, Value category: Low. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2020-05-03: Expected delivery 2020-05-17, Actual delivery 2020-05-20. Shipment volume: 115, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2020-10-19: Expected delivery 2020-10-24, Actual delivery 2020-10-27. Shipment volume: 71, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2022-01-10: Expected delivery 2022-01-15, Actual delivery 2022-01-15. Shipment volume: 52, Value category: High. This shipment was LOST.
-Supplier SUP005 shipment ordered on 2023-01-31: Expected delivery 2023-02-10, Actual delivery 2023-02-12. Shipment volume: 110, Value category: Low. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2020-10-28: Expected delivery 2020-11-08, Actual delivery 2020-11-12. Shipment volume: 63, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2022-03-23: Expected delivery 2022-04-02, Actual delivery 2022-04-06. Shipment volume: 122, Value category: High. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2020-11-12: Expected delivery 2020-11-19, Actual delivery 2020-11-21. Shipment volume: 89, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2020-10-17: Expected delivery 2020-10-29, Actual delivery 2020-10-30. Shipment volume: 116, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2023-09-13: Expected delivery 2023-09-28, Actual delivery 2023-09-30. Shipment volume: 94, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2021-08-06: Expected delivery 2021-08-15, Actual delivery 2021-08-23. Shipment volume: 116, Value category: High. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2023-09-20: Expected delivery 2023-09-30, Actual delivery 2023-10-01. Shipment volume: 122, Value category: Low. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2022-05-09: Expected delivery 2022-05-24, Actual delivery 2022-05-25. Shipment volume: 134, Value category: Low. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2022-09-14: Expected delivery 2022-09-28, Actual delivery 2022-09-27. Shipment volume: 85, Value category: Low. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2021-12-26: Expected delivery 2022-01-07, Actual delivery 2022-01-08. Shipment volume: 72, Value category: Critical. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2022-12-30: Expected delivery 2023-01-04, Actual delivery 2023-01-07. Shipment volume: 77, Value category: Low. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2021-03-03: Expected delivery 2021-03-17, Actual delivery 2021-03-10. Shipment volume: 108, Value category: Low. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2022-04-05: Expected delivery 2022-04-18, Actual delivery 2022-04-20. Shipment volume: 58, Value category: Low. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2022-01-06: Expected delivery 2022-01-13, Actual delivery 2022-01-10. Shipment volume: 85, Value category: Critical. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2020-12-09: Expected delivery 2020-12-18, Actual delivery 2020-12-20. Shipment volume: 67, Value category: High. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2023-08-17: Expected delivery 2023-08-31, Actual delivery 2023-08-31. Shipment volume: 116, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2020-12-03: Expected delivery 2020-12-15, Actual delivery 2020-12-17. Shipment volume: 78, Value category: Medium. This shipment was LOST.
-Supplier SUP005 shipment ordered on 2022-11-17: Expected delivery 2022-11-29, Actual delivery 2022-12-01. Shipment volume: 60, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2020-01-18: Expected delivery 2020-01-23, Actual delivery 2020-01-25. Shipment volume: 200, Value category: High. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2023-08-17: Expected delivery 2023-08-27, Actual delivery 2023-09-02. Shipment volume: 71, Value category: High. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2020-03-08: Expected delivery 2020-03-21, Actual delivery 2020-03-23. Shipment volume: 110, Value category: High. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2023-01-22: Expected delivery 2023-02-03, Actual delivery 2023-01-31. Shipment volume: 48, Value category: Low. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2023-07-12: Expected delivery 2023-07-24, Actual delivery 2023-07-20. Shipment volume: 110, Value category: Low. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2022-05-17: Expected delivery 2022-05-22, Actual delivery 2022-05-23. Shipment volume: 80, Value category: Critical. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2023-08-09: Expected delivery 2023-08-18, Actual delivery 2023-08-15. Shipment volume: 148, Value category: Low. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2023-05-24: Expected delivery 2023-05-29, Actual delivery 2023-05-30. Shipment volume: 93, Value category: Low. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2020-06-24: Expected delivery 2020-07-06, Actual delivery 2020-07-06. Shipment volume: 126, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2023-05-05: Expected delivery 2023-05-15, Actual delivery 2023-05-16. Shipment volume: 51, Value category: Critical. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2023-01-09: Expected delivery 2023-01-22, Actual delivery 2023-01-24. Shipment volume: 63, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2023-10-04: Expected delivery 2023-10-12, Actual delivery 2023-10-13. Shipment volume: 114, Value category: High. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2023-04-30: Expected delivery 2023-05-07, Actual delivery 2023-05-09. Shipment volume: 109, Value category: High. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2020-07-12: Expected delivery 2020-07-23, Actual delivery 2020-07-29. Shipment volume: 66, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2023-09-27: Expected delivery 2023-10-02, Actual delivery 2023-10-24. Shipment volume: 119, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2022-07-22: Expected delivery 2022-08-05, Actual delivery 2022-08-09. Shipment volume: 58, Value category: High. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2021-01-02: Expected delivery 2021-01-14, Actual delivery 2021-01-15. Shipment volume: 47, Value category: Medium. This shipment was LOST.
-Supplier SUP005 shipment ordered on 2023-04-10: Expected delivery 2023-04-23, Actual delivery 2023-04-30. Shipment volume: 100, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP005 shipment ordered on 2021-05-07: Expected delivery 2021-05-22, Actual delivery 2021-05-21. Shipment volume: 146, Value category: Low. This shipment was LOST.
-Supplier SUP006 shipment ordered on 2023-06-23: Expected delivery 2023-06-28, Actual delivery 2023-06-21. Shipment volume: 133, Value category: Critical. This shipment was DEFECTED.
-Supplier SUP006 shipment ordered on 2020-02-11: Expected delivery 2020-02-16, Actual delivery 2020-02-20. Shipment volume: 129, Value category: High. This shipment was LOST.
-Supplier SUP006 shipment ordered on 2022-11-06: Expected delivery 2022-11-13, Actual delivery 2022-11-13. Shipment volume: 69, Value category: Low. This shipment was DEFECTED.
-Supplier SUP006 shipment ordered on 2020-12-22: Expected delivery 2020-12-27, Actual delivery 2021-01-02. Shipment volume: 132, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP006 shipment ordered on 2020-11-22: Expected delivery 2020-11-28, Actual delivery 2020-11-29. Shipment volume: 155, Value category: Low. This shipment was DEFECTED.
-Supplier SUP006 shipment ordered on 2021-11-02: Expected delivery 2021-11-11, Actual delivery 2021-11-12. Shipment volume: 68, Value category: Critical. This shipment was DEFECTED.
-Supplier SUP006 shipment ordered on 2022-08-19: Expected delivery 2022-08-28, Actual delivery 2022-08-28. Shipment volume: 63, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP006 shipment ordered on 2020-02-20: Expected delivery 2020-02-25, Actual delivery 2020-02-25. Shipment volume: 96, Value category: Low. This shipment was LOST.
-Supplier SUP006 shipment ordered on 2022-09-13: Expected delivery 2022-09-22, Actual delivery 2022-09-19. Shipment volume: 148, Value category: Low. This shipment was LOST.
-Supplier SUP006 shipment ordered on 2021-03-07: Expected delivery 2021-03-19, Actual delivery 2021-03-20. Shipment volume: 117, Value category: Low. This shipment was DEFECTED.
-Supplier SUP006 shipment ordered on 2020-10-02: Expected delivery 2020-10-09, Actual delivery 2020-10-16. Shipment volume: 128, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP006 shipment ordered on 2021-04-04: Expected delivery 2021-04-10, Actual delivery 2021-04-12. Shipment volume: 101, Value category: Low. This shipment was DEFECTED.
-Supplier SUP006 shipment ordered on 2021-04-05: Expected delivery 2021-04-13, Actual delivery 2021-04-13. Shipment volume: 78, Value category: Low. This shipment was DEFECTED.
-Supplier SUP006 shipment ordered on 2023-05-18: Expected delivery 2023-05-25, Actual delivery 2023-05-15. Shipment volume: 137, Value category: Low. This shipment was DEFECTED.
-Supplier SUP006 shipment ordered on 2020-06-26: Expected delivery 2020-07-02, Actual delivery 2020-07-07. Shipment volume: 108, Value category: Low. This shipment was DEFECTED.
-Supplier SUP006 shipment ordered on 2023-05-06: Expected delivery 2023-05-14, Actual delivery 2023-05-11. Shipment volume: 45, Value category: Medium. This shipment was DEFECTED.
-Supplier SUP006 shipment ordered on 2022-05-23: Expected delivery 2022-06-06, Actual delivery 2022-06-10. Shipment volume: 128, Value category: Low. This shipment was DEFECTED.
+
+### Supplier Flagged
+-Quarterly supplier score of below 60 is flagged 
+- Flagged suppliers in this Dashboard: SUP002, SUP003, SUP005
+-Supplier SUP002: EuroAuto Parts Flagged in second quarter of 2021
+-Supplier SUP003: AsiaText Co Flagged in second and fourth quarter of 2020 and third quarter of 2021
+-Supplier SUP005: AfriMine Corp Flagged in first, third and fourth quarter of 2020, fourth quarter of 2021, first, second quarter of 2022 and first quarter of 2023.
+
+### Dashboard Visualizations and Chart Descriptions
+### Supplier Summary and Flagged Supplier Overview
+
+At the top of the dashboard, two summary cards provide a quick snapshot of the overall supplier landscape and potential risk signals:
+
+- **Total Suppliers:**  
+  Displays the number of unique suppliers present in the current dataset (`supplier_master_dataset.csv`).
+
+- **Flagged Suppliers:**  
+  Shows how many suppliers have an average score below the predefined risk threshold (e.g. score < 60), based on the ML-powered supplier scoring logic.
+
+---
+
+### Flagged Suppliers Table
+Below the summary cards, a table lists the suppliers that have been flagged as high-risk during one or more quarters.
+- **Columns in the Table:**  
+  - **Supplier ID**  
+  - **Supplier Name**  
+  - **Flagged Quarters:** Quarters where the supplier’s score dropped below the threshold (e.g. 2021-Q2, 2023-Q1)
+- **Data Source:**  
+  Derived from `supplier_score_final.csv` joined with `supplier_master_dataset.csv`
+- **Purpose:**  
+  This table helps users quickly identify which suppliers are underperforming, when the risk occurred, and which ones may need closer monitoring or intervention.
+- **Filters Impact:**  
+  The Date Range filter adjusts which scoring periods are considered for flagging. Flagging logic only applies to suppliers whose score fell below the threshold during the selected time period.
+---  
+The dashboard along with summary cards and table includes four key data visualizations that help users assess supplier performance, delivery reliability, and operational risk. Each chart is interactive and responds to filters like Value Category, Supplier, and Date Range.
+---
+### Average Supplier Score (Bar Chart)
+This chart displays the average risk score for each supplier across the selected time window. The score is derived from ML-powered evaluations combining delivery data, financial indicators, and risk modeling (see `supplier_score_final.csv`).
+- **X-axis:** Supplier ID  
+- **Y-axis:** Supplier Score  
+- **Filters:** Value Category, Date Range  
+- **Highlights:** Suppliers below the score threshold are flagged (visually grouped or emphasized in red/yellow/green color scale)
+- **Color Encoding:** Uses a continuous color scale (Red to Green) to indicate low to high scores
+- **Purpose:** Identify which suppliers consistently underperform and need attention
+---
+### Total Shipment Volume per Supplier (Bar Chart)
+This chart shows the total shipment volume (sum) for each supplier within the selected date range and shipment value category.
+- **X-axis:** Supplier ID  
+- **Y-axis:** Total Shipment Volume  
+- **Filters:** Value Category, Date Range  
+- **Source Data:** `supplier_delivery_dataset.csv`  
+- **Color Encoding:** Shades of blue represent shipment volume intensity  
+- **Purpose:** Compare supplier shipment load across time to identify overburdened or underutilized partners
+---
+### Expected vs Actual Deliveries (Multi-Series Line Chart with Event Markers)
+This interactive line chart tracks delivery performance over time for the selected supplier. It compares expected shipment deliveries to actual delivery volumes and overlays key failure events.
+- **X-axis:** Date (based on delivery records)  
+- **Y-axis:** Shipment Volume  
+- **Filters:** Supplier, Value Category, Date Range, Aggregation (Per Shipment, Per Week, Per Month)  
+- **Source Data:** `supplier_delivery_dataset.csv`  
+- **Lines & Markers:**  
+  - Blue dashed line with dots → Expected Delivery  
+  - Green solid line with squares → Actual Delivery  
+  - Brown triangles → Defected Shipments  
+  - Purple X markers → Lost Shipments  
+- **Purpose:** Analyze delivery accuracy, detect lag between planned and actual logistics, and identify high-risk periods for shipment failure
+---
+### Supplier Overview (Table)
+This table provides a breakdown of delivery metrics for a selected supplier, segmented by Value Category (Critical, High, Medium, Low). It is useful for comparative analysis within a supplier’s different shipment types.
+- **Columns:**  
+  - % On-Time  
+  - % Delayed  
+  - Avg Delay  
+  - Avg Shipment Volume  
+  - % Shipment Lost  
+  - % Defect Rate  
+- **Filters:** Supplier, Value Category  
+- **Source Data:** Derived from `supplier_delivery_table.csv`, which aggregates `supplier_delivery_dataset.csv`  
+- **Purpose:** Offer a snapshot view of delivery reliability and risk factors per shipment type — helping procurement or operations teams assess where the breakdowns occur
