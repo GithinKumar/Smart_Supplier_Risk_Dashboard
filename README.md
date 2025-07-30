@@ -82,16 +82,17 @@ Curated datasets are used for ML models and RAG pipelines:
 - **Scoring Formula:**
 
 ```python
-y = (
-  0.3 * (100 - %_shipment_lost) +
-  0.25 * (100 - %_defect_rate) +
-  0.2 * (100 - %_delayed) +
-  0.18 * (100 - avg_delay) +
-  0.05 * (100 - Financial Risk Score) +
-  0.15 * Credit Score +
-  0.1 * (100 - D&B Rating) +
-  0.1 * (100 - Log Revenue)
-)
+    y = (
+        0.2256 * (100 - merged_df["%_shipment_lost"]) +
+        0.188 * (100 - merged_df["%_defect_rate"]) +
+        0.1504 * (100 - merged_df["%_delayed"]) +
+        0.1353 * (100 - merged_df["avg_delay"]) +
+        0.0375 * (100 - merged_df["Financial Risk Score"]) +
+        0.1128 * (merged_df["Credit Score"]) +
+        0.0752 * (100 - merged_df["D&B Rating"]) +
+        0.0752 * (100 - merged_df["Log Revenue"])
+    )
+    
 ```
 - **Business Logic:**
   - Emphasis on shipment lost and defect rate
