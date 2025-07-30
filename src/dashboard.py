@@ -261,7 +261,8 @@ if not st.session_state["show_onboarding"]:
 
 
 # ----------------------------- CARDS: SUPPLIER SUMMARY BLOCK -----------------------------
-st.write("## Supplier Summary")
+st.markdown("## Supplier Summary <span title='Summary of total and flagged suppliers' " \
+"style='font-size: 0.5em; vertical-align: middle;'>ℹ️</span>", unsafe_allow_html=True)
 col1, col2 = st.columns(2)
 with col1:
     st.metric("Total Suppliers", master_df['Supplier ID'].nunique())
@@ -270,7 +271,9 @@ with col2:
 
 # Show flagged suppliers below cards
 if not flagged_suppliers.empty:
-    st.write("### Flagged Suppliers")
+    st.markdown("### Flagged Suppliers <span title='List of suppliers flagged quarters, score below 60 is flagged. " \
+    "More info about supplier score can be explained by chatbot or in Github' " \
+    "style='font-size: 0.5em; vertical-align: middle;'>ℹ️</span>", unsafe_allow_html=True)
     st.dataframe(flagged_suppliers.reset_index(drop=True), hide_index=True)
 else:
     st.write("No flagged suppliers detected.")
@@ -382,7 +385,9 @@ if not st.session_state["show_onboarding"]:
 col1, col2 = st.columns(2)
 
 with col1:
-    st.write("## Average Supplier Score")
+    st.markdown("## Average Supplier Score <span title='Shows average supplier score (Quarterly score averaged) for selected date range and value category filters," \
+    "More info about supplier score can be explained by chatbot or in Github' " \
+    "style='font-size: 0.5em; vertical-align: middle;'>ℹ️</span>", unsafe_allow_html=True)
     quarters_in_range = df[
         (df["Quarter"].dt.date >= date_range[0]) &
         (df["Quarter"].dt.date <= date_range[1])
@@ -400,7 +405,8 @@ with col1:
 
 # ----------------------------- TOTAL SHIPMENT VOLUME BAR CHART BLOCK -----------------------------
 with col2:
-    st.write("## Total Shipment Volume per Supplier")
+    st.markdown("## Total Shipment Volume per Supplier <span title='Displays total volume of shipments per supplier within selected filters' " \
+    "style='font-size: 0.5em; vertical-align: middle;'>ℹ️</span>", unsafe_allow_html=True)
 
     shipment_volume_df = delivery_df.copy()
     shipment_volume_df['Expected Delivery Date'] = pd.to_datetime(shipment_volume_df['Expected Delivery Date'])
@@ -428,7 +434,8 @@ with col2:
 if supplier_selected != "ALL":
 
 # ----------------------------- SUPPLIER DELIVERY CHART BLOCK -----------------------------
-    st.write("## Supplier Delivery Chart")
+    st.markdown("## Supplier Delivery Chart <span title='Compares expected vs actual deliveries over time with shipment issues(defected, lost) marked within selected filters' " \
+    "style='font-size: 0.5em; vertical-align: middle;'>ℹ️</span>", unsafe_allow_html=True)
 
     # Show average score and flagged state if one supplier is selected
     if supplier_selected != "ALL":
@@ -526,7 +533,8 @@ if supplier_selected != "ALL":
         st.warning("No data available for the selected filters.")
 
     # ----------------------------- SUPPLIER OVERVIEW BLOCK -----------------------------
-    st.write("## Supplier Overview")
+    st.markdown("## Supplier Overview <span title='Detailed delivery records filtered by supplier and value category' " \
+    "style='font-size: 0.5em; vertical-align: middle;'>ℹ️</span>", unsafe_allow_html=True)
     # Filter supplier overview table by selected supplier and value category
     filtered_overview = overview_df[
                     (overview_df["Supplier ID"] == supplier_selected) &

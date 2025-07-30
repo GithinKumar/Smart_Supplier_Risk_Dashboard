@@ -63,13 +63,7 @@ def get_relevant_metadata(user_input, dashboard_metadata, delivery_metadata):
     # --- Flagged suppliers logic ---
     if "flagged" in user_input_lower or "flag" in user_input_lower:
         flagged = dashboard_metadata.get("Flagged_suppliers", {})
-        flagged_suppliers = flagged.get("suppliers flagged", "N/A")
-        sup003_quarters = flagged.get("SUP003_Flagged_quarters", "N/A")
-        sup005_quarters = flagged.get("SUP005_Flagged_quarters", "N/A")
-        summaries["flagged_suppliers_info"] = (
-            f"The flagged suppliers in this dashboard are SUP003 (flagged in {sup003_quarters}) "
-            f"and SUP005 (flagged in {sup005_quarters})."
-            )
+        summaries["flagged_suppliers_info"] = "\n".join(f"{k}: {v}" for k, v in flagged.items())
         
     # --- Lost shipments for a supplier logic ---
     match = re.search(r'sup\d+', user_input_lower)
@@ -89,13 +83,24 @@ def get_relevant_metadata(user_input, dashboard_metadata, delivery_metadata):
                 f"Supplier {supplier_id} lost shipments on:\n" + "\n".join(lines)
             )
     
+    # Additional keyword filters for specific chart titles and supplier score
+    if "supplier score" in user_input_lower:
+        summaries["supplier_score"] = dashboard_metadata.get("ML Models Used-How score is Supplier Score is derived", "")
+
+    if "average supplier score" in user_input_lower:
+        summaries["chart_average_score"] = dashboard_metadata.get("Average Supplier Score (Bar Chart)", "")
+    if "shipment volume" in user_input_lower or "volume per supplier" in user_input_lower:
+        summaries["chart_shipment_volume"] = dashboard_metadata.get("Total Shipment Volume per Supplier (Bar Chart)", "")
+    if "expected vs actual" in user_input_lower or "delivery line chart" in user_input_lower:
+        summaries["chart_expected_vs_actual"] = dashboard_metadata.get("Expected vs Actual Deliveries (Multi-Series Line Chart with Event Markers)", "")
+    if "supplier overview table" in user_input_lower:
+        summaries["chart_supplier_overview"] = dashboard_metadata.get("Supplier Overview (Table)", "")
+    
     # Fallback: include some generic context if no match
     if not summaries:
         chart_titles = [c['title'] for c in dashboard_metadata.get("charts", [])]
         summaries["dashboard_overview"] = "Available charts: " + ", ".join(chart_titles)
     return summaries
-
-full_metadata = load_dashboard_metadata()
 
 def ask_ai(prompt, history, dashboard_metadata=None, context="", model="llama-3.3-70b-versatile"):
     if dashboard_metadata:
@@ -123,7 +128,7 @@ def ask_ai(prompt, history, dashboard_metadata=None, context="", model="llama-3.
     chat_completion = client.chat.completions.create(
         model=model,
         messages=messages,
-        max_tokens=200,
+        max_tokens=512,
         temperature=0.6
     )
     return chat_completion.choices[0].message.content
