@@ -121,6 +121,7 @@ def ask_ai(prompt, history, dashboard_metadata=None, context="", model="llama-3.
     "If you're asked something outside your scope, politely refuse and guide the user back to relevant dashboard topics.\n"
     "When referring to details not in the response, say: 'You can find more information in the GitHub repository.'\n"
     "Your tone should be informative, slightly witty, and always helpful. Avoid repeating context verbatim — interpret and explain like you're walking a colleague through it.\n"
+    "When the context includes numerical weights (e.g., for supplier score), explain them exactly as written, without guessing or inferring. Always present them as a structured list.\n"
     )
 
     messages = [{"role": "system", "content": system_prompt}]
