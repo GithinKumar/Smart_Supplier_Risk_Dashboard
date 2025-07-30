@@ -87,6 +87,10 @@ def get_relevant_metadata(user_input, dashboard_metadata, delivery_metadata):
     if "supplier score" in user_input_lower:
         summaries["supplier_score"] = dashboard_metadata.get("ML Models Used-How score is Supplier Score is derived", "")
 
+    # Explicitly include the weight distribution chunk when user asks about weights or scoring formula
+    if "weightage" in user_input_lower or "weights" in user_input_lower or "distribution" in user_input_lower:
+        summaries["score_weights"] = dashboard_metadata.get("Supplier Score Weight Distribution", "")
+
     if "average supplier score" in user_input_lower:
         summaries["chart_average_score"] = dashboard_metadata.get("Average Supplier Score (Bar Chart)", "")
     if "shipment volume" in user_input_lower or "volume per supplier" in user_input_lower:
