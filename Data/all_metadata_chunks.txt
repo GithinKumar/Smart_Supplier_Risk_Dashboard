@@ -43,17 +43,17 @@ Two machine learning models are used one to flag financial anomaly and another t
   - **Model:** XGBoost Regressor  
   - **Scoring Formula:**  
 calculates supplier score by weightage formula:
-```python
-y = (
-  0.3 * (100 - %_shipment_lost) +
-  0.25 * (100 - %_defect_rate) +
-  0.2 * (100 - %_delayed) +
-  0.18 * (100 - avg_delay) +
-  0.05 * (100 - Financial Risk Score) +
-  0.15 * Credit Score +
-  0.1 * (100 - D&B Rating) +
-  0.1 * (100 - Log Revenue)
-)
+The supplier score is calculated using a weighted formula that includes delivery performance and financial indicators:
+	-	30% → Shipment Lost (%)
+	-	25% → Defect Rate (%)
+	-	20% → Delayed Shipments (%)
+	-	18% → Average Delay (days)
+	-	5%  → Financial Risk Score (from ML Isolation Forest anomaly detection model)
+	-	15% → Credit Score
+	-	10% → D&B Rating
+	-	10% → Log Revenue
+Note: Higher weights are given to shipment loss and defects, while financial risk score acts as a soft signal.
+
 - **supplier score weightage formula Logic:**
   - Emphasis on shipment lost and defect rate
   - Financial risk score used as a minor signal
