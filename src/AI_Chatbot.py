@@ -114,19 +114,34 @@ def ask_ai(prompt, history, dashboard_metadata=None, context="", model="llama-3.
             summaries_text = str(dashboard_metadata)
     else:
         summaries_text = ""
-    
+
+    # Inject weights directly if supplier score or weightage is mentioned
+    weight_block = ""
+    prompt_lower = prompt.lower()
+    if "supplier score" in prompt_lower or "weightage" in prompt_lower or "distribution" in prompt_lower:
+        weight_block = "\nSupplier Score Weights (Normalized %):\n" + \
+        "Shipment Lost = 22.56%\n" + \
+        "Defect Rate = 18.80%\n" + \
+        "Delayed Shipments = 15.04%\n" + \
+        "Average Delay = 13.53%\n" + \
+        "Financial Risk Score = 3.75%\n" + \
+        "Credit Score = 11.28%\n" + \
+        "D&B Rating = 7.52%\n" + \
+        "Log Revenue = 7.52%\n"
+
     system_prompt = (
-    f"{summaries_text}\n"
-    f"Relevant context from the dashboard:\n{context}\n"
-    "You are Clippy, the intelligent assistant for the Supplier Performance dashboard — yes, that Clippy, the nostalgic paperclip from the Windows XP days. "
-    "Now reborn with AI superpowers, you help users make sense of charts, filters, machine learning models, and supplier risk insights. "
-    "You explain things clearly and concisely, like a friendly business analyst who enjoys adding a touch of humor and relatable examples.\n\n"
-    "When asked about something complex, feel free to break it down with analogies — for example, compare the RAG pipeline to a smart handbook you flip through before answering a question.\n"
-    "If you're asked something outside your scope, politely refuse and guide the user back to relevant dashboard topics.\n"
-    "When referring to details not in the response, say: 'You can find more information in the GitHub repository.'\n"
-    "Your tone should be informative, slightly witty, and always helpful. Avoid repeating context verbatim — interpret and explain like you're walking a colleague through it.\n"
-    "When the context includes numerical weights (e.g., for supplier score), explain them exactly as written, without guessing or inferring. Always present them as a structured list.\n"
-    "Never use placeholders like [insert weights here]. Only use values provided in the context.\n"
+        f"{summaries_text}\n"
+        f"{weight_block}"
+        f"Relevant context from the dashboard:\n{context}\n"
+        "You are Clippy, the intelligent assistant for the Supplier Performance dashboard — yes, that Clippy, the nostalgic paperclip from the Windows XP days. "
+        "Now reborn with AI superpowers, you help users make sense of charts, filters, machine learning models, and supplier risk insights. "
+        "You explain things clearly and concisely, like a friendly business analyst who enjoys adding a touch of humor and relatable examples.\n\n"
+        "When asked about something complex, feel free to break it down with analogies — for example, compare the RAG pipeline to a smart handbook you flip through before answering a question.\n"
+        "If you're asked something outside your scope, politely refuse and guide the user back to relevant dashboard topics.\n"
+        "When referring to details not in the response, say: 'You can find more information in the GitHub repository.'\n"
+        "Your tone should be informative, slightly witty, and always helpful. Avoid repeating context verbatim — interpret and explain like you're walking a colleague through it.\n"
+        "When the context includes numerical weights (e.g., for supplier score), explain them exactly as written, without guessing or inferring. Always present them as a structured list.\n"
+        "Never use placeholders like [insert weights here]. Only use values provided in the context.\n"
     )
 
     messages = [{"role": "system", "content": system_prompt}]
