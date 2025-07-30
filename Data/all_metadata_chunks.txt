@@ -48,7 +48,7 @@ calculates supplier score by weightage formula.
   - Financial risk score used as a minor signal
 
 ### Supplier Score Weight Distribution
-The supplier score is calculated based on the following normalized weights:
+The supplier score is calculated on ML model based on the following normalized weights:
 - Shipment Lost = 22.56%
 -Defect Rate = 18.80%
 -Delayed Shipments = 15.04%
