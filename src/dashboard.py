@@ -63,7 +63,7 @@ if st.session_state["show_onboarding"]:
                 <p>
                 I am here to walk you through 
                 <span style="font-size:1.11em; font-weight:800; color:#101e4c;">
-                Githin Kumar's Supplier Risk Assessment Dashboard</span>.<br>
+                Githin Kumar's Smart Supplier Risk Overview Dashboard</span>.<br>
                 <br>
                 This project combines the power of advanced analytics, interactive BI dashboards, 
                 and cutting-edge AI (ML & LLM/SLM) to deliver a new level of supplier risk insight. 
@@ -107,16 +107,14 @@ if st.session_state["show_onboarding"]:
                     box-shadow: 0 8px 32px #0003; margin-top: 24px;
                     font-size: 18px;
                 '>
-                This dashboard delivers a comprehensive view of supplier delivery records, shipment volumes, supplier scores, 
-                risk flagging, and flexible filters for easy comparison and performance assessment.
+                This dashboard offers a clear, ML-powered view of supplier performance, combining delivery records, 
+                shipment data, risk scores, and dynamic filters for effective comparison and insight.
                 </p>
-                Supplier scores are powered by ML models such as Isolation Forest and XGBRegressor, which analyze 
-                delivery, financial, and supplier overview data to identify and flag potential risks.
+                Supplier risk scoring leverages models like XGBoost and Isolation Forest, using delivery and 
+                financial data to detect anomalies and flag high-risk suppliers.
                 </p>    
-                Real-world solutions can integrate data sources like email archives, contract documents, 
-                invoices, purchase orders, performance reviews, and support tickets. By leveraging 
-                deep learning transformer models and LLMs, to enable advanced pattern detection, 
-                predictive analytics, automated document analysis, and enchanced supplier risk management.
+                Real-world solutions can integrate data sources like contracts, emails, invoices, and support tickets. 
+                Powered by transformers and LLMs, it enables predictive analytics, automated document analysis, and smarter supplier risk management.
                 </p>
                 </div>
             """, unsafe_allow_html=True)
@@ -151,17 +149,14 @@ if st.session_state["show_onboarding"]:
                     box-shadow: 0 8px 32px #0003; margin-top: 24px;
                     font-size: 18px;
                 '>
-                This dashboard features an integrated AI assistant, Clippy, trained on project-specific data. 
-                Clippy eliminates the need for a dedicated presenter or dashboard owner by instantly answering questions, 
-                explaining dashboard elements, and guiding users making onboarding easier for new staff and providing valuable support 
-                for management or cross-departmental reviews.
+                The dashboard includes an integrated AI assistant, Clippy, designed to simplify onboarding and decision making. 
+                It answers questions, explains dashboard elements, and guides users removing the need for a dedicated presenter or analyst during reviews or training sessions.
                 </p>
-                This particular chatbot is powered by llama 3.3 70b versatile model from Groq with RAG pipeline for context awarness.
-                The model is highly capable, but it is running on a free tier of Groq's API which comes with its limitations.
+                Clippy is powered by the LLaMA 3.3 70B model and enhanced with prompt engineering for domain-specific accuracy. 
+                It runs on a Retrieval-Augmented Generation (RAG) pipeline, using embedded metadata from supplier data and ML scoring logic to deliver context-aware responses.
                 </p>    
-                In real-world scenarios, companies can deploy advanced, locally-run models such as 
-                Moonshot AI Kimi K2, Llama 3, Mistral, or Vicuna to ensure privacy and customization. 
-                There is also a GitHub repository with a complete codebase for this project.
+                For real-world deployment, organizations can replace the hosted model with private alternatives 
+                like LLaMA, Mistral, Vicuna, or Moonshot Kimi for better customization and data privacy. The full implementation is available in this repository.
                 </p>
                 </div>
         """, unsafe_allow_html=True)
