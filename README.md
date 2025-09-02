@@ -77,7 +77,7 @@ Curated datasets are used for ML models and RAG pipelines:
 - **Inputs:**
   - `supplier_overview`
   - `supplier_master_dataset`
-  - `supplier_financial_risk_score`- as a minor indicator
+  - `supplier_financial_risk_score`- as a minor signal
   - `supplier_finacials_dataset`
 - **Model:** XGBoost Regressor
 - **Scoring Formula:**
